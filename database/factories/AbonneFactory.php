@@ -23,12 +23,12 @@ class AbonneFactory extends Factory
     {
         $villes = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua'];
         $ville = $this->faker->randomElement($villes);
-        
+
         $prefixes = [
             'Yaoundé' => 'YAO',
             'Douala' => 'DLA',
             'Bafoussam' => 'BAF',
-            'Garoua' => 'GAR'
+            'Garoua' => 'GAR',
         ];
 
         return [
@@ -36,7 +36,7 @@ class AbonneFactory extends Factory
             'prenom' => $this->faker->firstName(),
             'ville' => $ville,
             'quartier' => $this->faker->streetName(),
-            'numero_compteur' => 'CPT-' . $prefixes[$ville] . '-' . $this->faker->unique()->numberBetween(1000, 9999),
+            'numero_compteur' => 'CPT-'.$prefixes[$ville].'-'.$this->faker->unique()->numberBetween(1000, 9999),
             'type_abonnement' => $this->faker->randomElement(['Domestique', 'Professionnel']),
             'date_creation' => now(),
         ];

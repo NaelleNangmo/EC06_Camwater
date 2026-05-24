@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 /**
  * Seeder pour créer les rôles et permissions du système CAMWATER PRO.
@@ -27,19 +27,19 @@ class RolePermissionSeeder extends Seeder
             'create_abonnes',
             'edit_abonnes',
             'delete_abonnes',
-            
+
             // Permissions Factures
             'view_factures',
             'create_factures',
             'edit_factures',
             'delete_factures',
-            
+
             // Permissions Réclamations
             'view_reclamations',
             'create_reclamations',
             'edit_reclamations',
             'delete_reclamations',
-            
+
             // Permissions Utilisateurs
             'manage_users',
             'view_logs',

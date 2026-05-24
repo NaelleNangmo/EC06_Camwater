@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Facture extends Model
 {
     use HasFactory;
+
     /**
      * Le nom de la table associée au modèle.
-     *
      */
     protected $table = 'factures';
 
@@ -46,8 +46,6 @@ class Facture extends Model
 
     /**
      * Relation : Une facture appartient à un abonné.
-     *
-     * @return BelongsTo
      */
     public function abonne(): BelongsTo
     {
@@ -56,8 +54,6 @@ class Facture extends Model
 
     /**
      * Relation : Une facture peut avoir plusieurs réclamations.
-     *
-     * @return HasMany
      */
     public function reclamations(): HasMany
     {

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Abonne;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,7 +22,7 @@ class SecuredRoutesTest extends TestCase
 
         // Créer un abonné
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/abonnes', [
             'nom' => 'Dupont',
             'prenom' => 'Jean',
@@ -67,12 +67,12 @@ class SecuredRoutesTest extends TestCase
         // Créer un utilisateur et un abonné
         $user = User::factory()->create();
         $token = $user->createToken('test-token')->plainTextToken;
-        
+
         $abonne = Abonne::factory()->create();
 
         // Modifier l'abonné
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->putJson("/api/abonnes/{$abonne->id}", [
             'quartier' => 'Mvan',
         ]);
@@ -110,12 +110,12 @@ class SecuredRoutesTest extends TestCase
         // Créer un utilisateur et un abonné
         $user = User::factory()->create();
         $token = $user->createToken('test-token')->plainTextToken;
-        
+
         $abonne = Abonne::factory()->create();
 
         // Supprimer l'abonné
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->deleteJson("/api/abonnes/{$abonne->id}");
 
         // Vérifier la suppression

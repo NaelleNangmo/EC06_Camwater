@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -18,27 +18,27 @@ return new class extends Migration
 
             // Référence vers l'abonné
             $table->foreignId('abonne_id')
-                  ->constrained('abonnes')
-                  ->onDelete('cascade')
-                  ->comment('Identifiant de l\'abonné concerné');
+                ->constrained('abonnes')
+                ->onDelete('cascade')
+                ->comment('Identifiant de l\'abonné concerné');
 
             // Informations de consommation
             $table->decimal('consommation', 10, 2)
-                  ->unsigned()
-                  ->comment('Consommation d\'eau en mètres cubes (m³)');
+                ->unsigned()
+                ->comment('Consommation d\'eau en mètres cubes (m³)');
 
             // Montant de la facture
             $table->decimal('montant_total', 10, 2)
-                  ->comment('Montant total de la facture en FCFA');
+                ->comment('Montant total de la facture en FCFA');
 
             // Date d'émission
             $table->timestamp('date_emission')->useCurrent()
-                  ->comment('Date d\'émission de la facture');
+                ->comment('Date d\'émission de la facture');
 
             // Statut de la facture
             $table->enum('statut', ['Emise', 'Payee'])
-                  ->default('Emise')
-                  ->comment('Statut de paiement de la facture');
+                ->default('Emise')
+                ->comment('Statut de paiement de la facture');
 
             $table->timestamps();
         });

@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../vendor/simpletest/simpletest/src/autorun.php';
+require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/simpletest/simpletest/src/autorun.php';
 
-$app = require_once __DIR__ . '/../../bootstrap/app.php';
+$app = require_once __DIR__.'/../../bootstrap/app.php';
 $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use App\Models\Abonne;
@@ -13,27 +13,27 @@ use App\Models\Abonne;
  */
 class AbonneSimpleTest extends UnitTestCase
 {
-    public function testNomCompletRetournePrenomsEtNom()
+    public function test_nom_complet_retourne_prenoms_et_nom()
     {
-        $abonne = new Abonne();
-        $abonne->nom    = 'Kamga';
+        $abonne = new Abonne;
+        $abonne->nom = 'Kamga';
         $abonne->prenom = 'Jean';
 
         $this->assertEqual('Jean Kamga', $abonne->nom_complet);
     }
 
-    public function testNomCompletAvecPrenomCompose()
+    public function test_nom_complet_avec_prenom_compose()
     {
-        $abonne = new Abonne();
-        $abonne->nom    = 'Nkolo';
+        $abonne = new Abonne;
+        $abonne->nom = 'Nkolo';
         $abonne->prenom = 'Marie Claire';
 
         $this->assertEqual('Marie Claire Nkolo', $abonne->nom_complet);
     }
 
-    public function testFillableContientChampsPrincipaux()
+    public function test_fillable_contient_champs_principaux()
     {
-        $abonne   = new Abonne();
+        $abonne = new Abonne;
         $fillable = $abonne->getFillable();
 
         $this->assertTrue(in_array('nom', $fillable));
@@ -43,13 +43,13 @@ class AbonneSimpleTest extends UnitTestCase
         $this->assertTrue(in_array('type_abonnement', $fillable));
     }
 
-    public function testAssignationAttributs()
+    public function test_assignation_attributs()
     {
         $abonne = new Abonne([
-            'nom'             => 'Biya',
-            'prenom'          => 'Paul',
-            'ville'           => 'Yaoundé',
-            'quartier'        => 'Etoudi',
+            'nom' => 'Biya',
+            'prenom' => 'Paul',
+            'ville' => 'Yaoundé',
+            'quartier' => 'Etoudi',
             'numero_compteur' => 'CPT-001',
             'type_abonnement' => 'Domestique',
         ]);

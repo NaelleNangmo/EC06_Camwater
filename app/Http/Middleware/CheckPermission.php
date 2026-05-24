@@ -18,18 +18,18 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next, string $permission): Response
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Non authentifié'
+                'message' => 'Non authentifié',
             ], 401);
         }
 
-        if (!$request->user()->hasPermissionTo($permission)) {
+        if (! $request->user()->hasPermissionTo($permission)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Vous n\'avez pas la permission d\'effectuer cette action',
-                'required_permission' => $permission
+                'required_permission' => $permission,
             ], 403);
         }
 

@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Abonne;
 use App\Models\Facture;
-use App\Models\Reclamation;
 use App\Models\Operateur;
+use App\Models\Reclamation;
 use Illuminate\Database\Seeder;
 
 /**
@@ -20,13 +20,13 @@ class DatabaseSeeder extends Seeder
     {
         // Créer des opérateurs
         $this->seedOperateurs();
-        
+
         // Créer des abonnés
         $this->seedAbonnes();
-        
+
         // Créer des factures
         $this->seedFactures();
-        
+
         // Créer des réclamations
         $this->seedReclamations();
     }
