@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Abonne;
 use App\Models\Facture;
-use App\Services\MongoLogService;
 use App\Services\CacheService;
-use Illuminate\Http\Request;
+use App\Services\MongoLogService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * Contrôleur pour gérer les opérations sur les factures.
@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 class FactureController extends Controller
 {
     protected $mongoLog;
+
     protected $cache;
 
     public function __construct(MongoLogService $mongoLog, CacheService $cache)
@@ -25,8 +26,6 @@ class FactureController extends Controller
 
     /**
      * Affiche la liste de toutes les factures avec pagination.
-     *
-     * @return JsonResponse
      */
     public function index(): JsonResponse
     {
@@ -49,7 +48,7 @@ class FactureController extends Controller
                 'from' => $factures->firstItem(),
                 'to' => $factures->lastItem(),
             ],
-            'message' => 'Liste des factures récupérée avec succès.'
+            'message' => 'Liste des factures récupérée avec succès.',
         ], 200);
     }
 
@@ -57,9 +56,6 @@ class FactureController extends Controller
      * Génère une nouvelle facture pour un abonné.
      * Cette méthode calcule automatiquement le montant en fonction
      * de la consommation et du type d'abonnement.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function generer(Request $request): JsonResponse
     {
@@ -102,65 +98,58 @@ class FactureController extends Controller
                     'consommation' => $facture->consommation,
                     'montant' => $facture->montant_total,
                     'type_abonnement' => $abonne->type_abonnement,
-                    'numero_compteur' => $abonne->numero_compteur
+                    'numero_compteur' => $abonne->numero_compteur,
                 ]
             );
 
             return response()->json([
                 'success' => true,
                 'data' => $facture,
-                'message' => 'Facture générée avec succès.'
+                'message' => 'Facture générée avec succès.',
             ], 201);
 
         } catch (\InvalidArgumentException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
 
     /**
      * Affiche les détails d'une facture spécifique.
-     *
-     * @param string $id
-     * @return JsonResponse
      */
     public function show(string $id): JsonResponse
     {
         // Récupérer la facture avec l'abonné et les réclamations
         $facture = Facture::with(['abonne', 'reclamations'])->find($id);
 
-        if (!$facture) {
+        if (! $facture) {
             return response()->json([
                 'success' => false,
-                'message' => 'Facture non trouvée.'
+                'message' => 'Facture non trouvée.',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
             'data' => $facture,
-            'message' => 'Détails de la facture récupérés avec succès.'
+            'message' => 'Détails de la facture récupérés avec succès.',
         ], 200);
     }
 
     /**
      * Met à jour le statut d'une facture.
-     *
-     * @param Request $request
-     * @param string $id
-     * @return JsonResponse
      */
     public function update(Request $request, string $id): JsonResponse
     {
         // Récupérer la facture
         $facture = Facture::find($id);
 
-        if (!$facture) {
+        if (! $facture) {
             return response()->json([
                 'success' => false,
-                'message' => 'Facture non trouvée.'
+                'message' => 'Facture non trouvée.',
             ], 404);
         }
 
@@ -188,7 +177,7 @@ class FactureController extends Controller
                     'facture_id' => $facture->id,
                     'montant' => $facture->montant_total,
                     'mode_paiement' => 'Non spécifié',
-                    'ancien_statut' => $ancienStatut
+                    'ancien_statut' => $ancienStatut,
                 ]
             );
         }
@@ -196,25 +185,22 @@ class FactureController extends Controller
         return response()->json([
             'success' => true,
             'data' => $facture,
-            'message' => 'Statut de la facture mis à jour avec succès.'
+            'message' => 'Statut de la facture mis à jour avec succès.',
         ], 200);
     }
 
     /**
      * Supprime une facture de la base de données.
-     *
-     * @param string $id
-     * @return JsonResponse
      */
     public function destroy(string $id): JsonResponse
     {
         // Récupérer la facture
         $facture = Facture::find($id);
 
-        if (!$facture) {
+        if (! $facture) {
             return response()->json([
                 'success' => false,
-                'message' => 'Facture non trouvée.'
+                'message' => 'Facture non trouvée.',
             ], 404);
         }
 
@@ -226,7 +212,7 @@ class FactureController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Facture supprimée avec succès.'
+            'message' => 'Facture supprimée avec succès.',
         ], 200);
     }
 }

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Abonne;
-use App\Services\MongoLogService;
 use App\Services\CacheService;
-use Illuminate\Http\Request;
+use App\Services\MongoLogService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 /**
@@ -15,6 +15,7 @@ use Illuminate\Validation\Rule;
 class AbonneController extends Controller
 {
     protected $mongoLog;
+
     protected $cache;
 
     public function __construct(MongoLogService $mongoLog, CacheService $cache)
@@ -22,17 +23,16 @@ class AbonneController extends Controller
         $this->mongoLog = $mongoLog;
         $this->cache = $cache;
     }
+
     /**
      * Affiche la liste de tous les abonnés avec pagination.
-     *
-     * @return JsonResponse
      */
     public function index(): JsonResponse
     {
         // Utiliser le cache pour améliorer les performances
         $page = request()->get('page', 1);
         $cacheKey = "abonnes_page_{$page}";
-        
+
         $abonnes = $this->cache->remember($cacheKey, function () {
             return Abonne::with('factures')->paginate(15);
         }, 30); // Cache de 30 minutes
@@ -48,15 +48,12 @@ class AbonneController extends Controller
                 'from' => $abonnes->firstItem(),
                 'to' => $abonnes->lastItem(),
             ],
-            'message' => 'Liste des abonnés récupérée avec succès.'
+            'message' => 'Liste des abonnés récupérée avec succès.',
         ], 200);
     }
 
     /**
      * Crée un nouvel abonné dans la base de données.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -87,58 +84,51 @@ class AbonneController extends Controller
                 'ville' => $abonne->ville,
                 'quartier' => $abonne->quartier,
                 'numero_compteur' => $abonne->numero_compteur,
-                'type_abonnement' => $abonne->type_abonnement
+                'type_abonnement' => $abonne->type_abonnement,
             ]
         );
 
         return response()->json([
             'success' => true,
             'data' => $abonne,
-            'message' => 'Abonné créé avec succès.'
+            'message' => 'Abonné créé avec succès.',
         ], 201);
     }
 
     /**
      * Affiche les détails d'un abonné spécifique.
-     *
-     * @param string $id
-     * @return JsonResponse
      */
     public function show(string $id): JsonResponse
     {
         // Récupérer l'abonné avec ses factures
         $abonne = Abonne::with('factures')->find($id);
 
-        if (!$abonne) {
+        if (! $abonne) {
             return response()->json([
                 'success' => false,
-                'message' => 'Abonné non trouvé.'
+                'message' => 'Abonné non trouvé.',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
             'data' => $abonne,
-            'message' => 'Détails de l\'abonné récupérés avec succès.'
+            'message' => 'Détails de l\'abonné récupérés avec succès.',
         ], 200);
     }
 
     /**
      * Met à jour les informations d'un abonné.
-     *
-     * @param Request $request
-     * @param string $id
-     * @return JsonResponse
      */
     public function update(Request $request, string $id): JsonResponse
     {
         // Récupérer l'abonné
         $abonne = Abonne::find($id);
 
-        if (!$abonne) {
+        if (! $abonne) {
             return response()->json([
                 'success' => false,
-                'message' => 'Abonné non trouvé.'
+                'message' => 'Abonné non trouvé.',
             ], 404);
         }
 
@@ -148,7 +138,7 @@ class AbonneController extends Controller
             'prenom' => 'sometimes|string|max:255',
             'ville' => ['sometimes', Rule::in(['Yaoundé', 'Douala', 'Bafoussam', 'Garoua'])],
             'quartier' => 'sometimes|string|max:255',
-            'numero_compteur' => 'sometimes|string|unique:abonnes,numero_compteur,' . $id,
+            'numero_compteur' => 'sometimes|string|unique:abonnes,numero_compteur,'.$id,
             'type_abonnement' => ['sometimes', Rule::in(['Domestique', 'Professionnel'])],
         ]);
 
@@ -169,35 +159,31 @@ class AbonneController extends Controller
             [
                 'champs_modifies' => array_keys($validated),
                 'anciennes_valeurs' => $anciennesValeurs,
-                'nouvelles_valeurs' => $validated
+                'nouvelles_valeurs' => $validated,
             ]
         );
 
         return response()->json([
             'success' => true,
             'data' => $abonne,
-            'message' => 'Abonné mis à jour avec succès.'
+            'message' => 'Abonné mis à jour avec succès.',
         ], 200);
     }
 
     /**
      * Supprime un abonné de la base de données.
-     *
-     * @param string $id
-     * @return JsonResponse
      */
     public function destroy(string $id): JsonResponse
     {
         // Récupérer l'abonné
         $abonne = Abonne::find($id);
 
-        if (!$abonne) {
+        if (! $abonne) {
             return response()->json([
                 'success' => false,
-                'message' => 'Abonné non trouvé.'
+                'message' => 'Abonné non trouvé.',
             ], 404);
         }
-        
 
         // Logger l'action avant suppression
         $this->mongoLog->logActivity(
@@ -205,9 +191,9 @@ class AbonneController extends Controller
             1, // l'ID de l'opérateur authentifié
             $abonne->id,
             [
-                'nom_complet' => $abonne->nom . ' ' . $abonne->prenom,
+                'nom_complet' => $abonne->nom.' '.$abonne->prenom,
                 'numero_compteur' => $abonne->numero_compteur,
-                'raison' => 'Suppression via API'
+                'raison' => 'Suppression via API',
             ]
         );
 
@@ -219,7 +205,7 @@ class AbonneController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Abonné supprimé avec succès.'
+            'message' => 'Abonné supprimé avec succès.',
         ], 200);
     }
 }

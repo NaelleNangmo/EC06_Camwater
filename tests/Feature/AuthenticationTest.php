@@ -105,7 +105,7 @@ class AuthenticationTest extends TestCase
 
         // Accéder à une route protégée
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/me');
 
         // Vérifier l'accès
@@ -147,7 +147,7 @@ class AuthenticationTest extends TestCase
 
         // Se déconnecter
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/logout');
 
         // Vérifier la déconnexion

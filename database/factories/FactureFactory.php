@@ -23,10 +23,10 @@ class FactureFactory extends Factory
     public function definition(): array
     {
         $consommation = $this->faker->randomFloat(2, 5, 50);
-        
+
         // Créer un abonné si aucun n'est fourni
         $abonne = Abonne::factory()->create();
-        
+
         // Calculer le montant selon le type d'abonnement
         $montant = Facture::calculerMontant($consommation, $abonne->type_abonnement);
 
@@ -67,7 +67,7 @@ class FactureFactory extends Factory
         return $this->state(function (array $attributes) use ($abonne) {
             $consommation = $attributes['consommation'] ?? $this->faker->randomFloat(2, 5, 50);
             $montant = Facture::calculerMontant($consommation, $abonne->type_abonnement);
-            
+
             return [
                 'abonne_id' => $abonne->id,
                 'montant_total' => $montant,

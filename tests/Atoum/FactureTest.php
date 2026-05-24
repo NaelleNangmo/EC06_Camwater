@@ -17,13 +17,13 @@ class Facture extends atoum\test
     public function testDomestiqueTrancheUn()
     {
         $this->integer(\App\Models\Facture::calculerMontant(8, 'Domestique'))
-             ->isEqualTo(2800); // 8 × 350
+            ->isEqualTo(2800); // 8 × 350
     }
 
     public function testDomestiqueLimiteTrancheUn()
     {
         $this->integer(\App\Models\Facture::calculerMontant(10, 'Domestique'))
-             ->isEqualTo(3500); // 10 × 350
+            ->isEqualTo(3500); // 10 × 350
     }
 
     // ── Domestique tranche 2 : 11–20 m³ à 550 FCFA ──────────────────────────
@@ -31,13 +31,13 @@ class Facture extends atoum\test
     public function testDomestiqueTrancheDeux()
     {
         $this->integer(\App\Models\Facture::calculerMontant(15, 'Domestique'))
-             ->isEqualTo(6250); // (10×350) + (5×550)
+            ->isEqualTo(6250); // (10×350) + (5×550)
     }
 
     public function testDomestiqueLimiteTrancheDeux()
     {
         $this->integer(\App\Models\Facture::calculerMontant(20, 'Domestique'))
-             ->isEqualTo(9000); // (10×350) + (10×550)
+            ->isEqualTo(9000); // (10×350) + (10×550)
     }
 
     // ── Domestique tranche 3 : > 20 m³ à 780 FCFA ───────────────────────────
@@ -45,7 +45,7 @@ class Facture extends atoum\test
     public function testDomestiqueTrancheTrois()
     {
         $this->integer(\App\Models\Facture::calculerMontant(25, 'Domestique'))
-             ->isEqualTo(12900); // (10×350) + (10×550) + (5×780)
+            ->isEqualTo(12900); // (10×350) + (10×550) + (5×780)
     }
 
     // ── Professionnel : forfait 8500 + 950/m³ ───────────────────────────────
@@ -53,13 +53,13 @@ class Facture extends atoum\test
     public function testProfessionnel()
     {
         $this->integer(\App\Models\Facture::calculerMontant(25, 'Professionnel'))
-             ->isEqualTo(32250); // 8500 + (25×950)
+            ->isEqualTo(32250); // 8500 + (25×950)
     }
 
     public function testProfessionnelPetiteConsommation()
     {
         $this->integer(\App\Models\Facture::calculerMontant(1, 'Professionnel'))
-             ->isEqualTo(9450); // 8500 + (1×950)
+            ->isEqualTo(9450); // 8500 + (1×950)
     }
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────────

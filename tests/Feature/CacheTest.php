@@ -49,7 +49,7 @@ class CacheTest extends TestCase
 
         // Créer un nouvel abonné
         $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/abonnes', [
             'nom' => 'Nouveau',
             'prenom' => 'Abonne',
@@ -79,7 +79,7 @@ class CacheTest extends TestCase
 
         // Modifier l'abonné
         $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->putJson("/api/abonnes/{$abonne->id}", [
             'quartier' => 'Nouveau Quartier',
         ]);
@@ -104,7 +104,7 @@ class CacheTest extends TestCase
 
         // Supprimer l'abonné
         $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->deleteJson("/api/abonnes/{$abonne->id}");
 
         // Vérifier que le cache est invalidé

@@ -13,7 +13,6 @@ class Operateur extends Model
 {
     /**
      * Le nom de la table associée au modèle.
-     *
      */
     protected $table = 'operateurs';
 
@@ -39,9 +38,6 @@ class Operateur extends Model
 
     /**
      * Mutateur pour hacher automatiquement le mot de passe.
-     *
-     * @param string $value
-     * @return void
      */
     public function setPasswordAttribute(string $value): void
     {

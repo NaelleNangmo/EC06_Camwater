@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AbonneController;
-use App\Http\Controllers\FactureController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ReclamationController;
 use App\Http\Controllers\StatistiquesController;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Routes API pour l'application CAMWATER PRO.
@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::put('reclamations/{id}', [ReclamationController::class, 'update'])->name('reclamations.update');
     Route::delete('reclamations/{id}', [ReclamationController::class, 'destroy'])->name('reclamations.destroy');
 
-    //Gestion des statistiques
+    // Gestion des statistiques
     Route::get('statistiques', [StatistiquesController::class, 'index'])->name('reclamations.index');
 
 });

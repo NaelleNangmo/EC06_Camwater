@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Abonne extends Model
 {
     use HasFactory;
+
     /**
      * Le nom de la table associée au modèle.
      *
@@ -22,7 +23,6 @@ class Abonne extends Model
 
     /**
      * Les attributs qui peuvent être assignés en masse.
-     *
      */
     protected $fillable = [
         'nom',
@@ -45,8 +45,6 @@ class Abonne extends Model
 
     /**
      * Relation : Un abonné possède plusieurs factures.
-     *
-     * @return HasMany
      */
     public function factures(): HasMany
     {
@@ -55,8 +53,6 @@ class Abonne extends Model
 
     /**
      * Accesseur pour obtenir le nom complet de l'abonné.
-     *
-     * @return string
      */
     public function getNomCompletAttribute(): string
     {
