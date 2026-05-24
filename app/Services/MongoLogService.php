@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
-use MongoDB\BSON\UTCDateTime;
+use Illuminate\Support\Facades\Log;
 
 class MongoLogService
 {
@@ -14,8 +14,7 @@ class MongoLogService
     {
         // Vérifier si MongoDB est disponible
         if (! extension_loaded('mongodb')) {
-            // MongoDB n'est pas installé, on log dans Laravel
-            \Log::info('MongoDB Log (extension non installée)', [
+            Log::info('MongoDB Log (extension non installée)', [
                 'type_action' => $typeAction,
                 'operateur_id' => $operateurId,
                 'abonne_id' => $abonneId,
@@ -32,12 +31,11 @@ class MongoLogService
                     'type_action' => $typeAction,
                     'operateur_id' => $operateurId,
                     'abonne_id' => $abonneId,
-                    'timestamp' => new UTCDateTime,
+                    'timestamp' => new \MongoDB\BSON\UTCDateTime,
                     'details' => $details,
                 ]);
         } catch (\Exception $e) {
-            // Log l'erreur sans interrompre l'application
-            \Log::error('Erreur lors de l\'enregistrement du log MongoDB: '.$e->getMessage());
+            Log::error('Erreur lors de l\'enregistrement du log MongoDB: '.$e->getMessage());
         }
     }
 
@@ -46,8 +44,12 @@ class MongoLogService
      */
     public function getOperateurLogs(int $operateurId, int $days = 7): array
     {
+        if (! extension_loaded('mongodb')) {
+            return [];
+        }
+
         try {
-            $dateLimite = new UTCDateTime((time() - ($days * 24 * 60 * 60)) * 1000);
+            $dateLimite = new \MongoDB\BSON\UTCDateTime((time() - ($days * 24 * 60 * 60)) * 1000);
 
             $logs = DB::connection('mongodb')
                 ->collection('activites')
@@ -59,7 +61,7 @@ class MongoLogService
 
             return $logs;
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la récupération des logs MongoDB: '.$e->getMessage());
+            Log::error('Erreur lors de la récupération des logs MongoDB: '.$e->getMessage());
 
             return [];
         }
@@ -70,6 +72,10 @@ class MongoLogService
      */
     public function getAbonneLogs(int $abonneId): array
     {
+        if (! extension_loaded('mongodb')) {
+            return [];
+        }
+
         try {
             $logs = DB::connection('mongodb')
                 ->collection('activites')
@@ -80,7 +86,7 @@ class MongoLogService
 
             return $logs;
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la récupération des logs de l\'abonné: '.$e->getMessage());
+            Log::error('Erreur lors de la récupération des logs de l\'abonné: '.$e->getMessage());
 
             return [];
         }
@@ -91,6 +97,10 @@ class MongoLogService
      */
     public function getStatistiquesByType(): array
     {
+        if (! extension_loaded('mongodb')) {
+            return [];
+        }
+
         try {
             $stats = DB::connection('mongodb')
                 ->collection('activites')
@@ -112,7 +122,7 @@ class MongoLogService
 
             return $stats;
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la récupération des statistiques: '.$e->getMessage());
+            Log::error('Erreur lors de la récupération des statistiques: '.$e->getMessage());
 
             return [];
         }

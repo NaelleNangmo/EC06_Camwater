@@ -14,16 +14,6 @@ jobs:
     name: PHPUnit Tests
     runs-on: ubuntu-latest
 
-    services:
-      mongo:
-        image: mongo:7.0
-        ports: ["27017:27017"]
-        options: >-
-          --health-cmd "mongosh --eval \"db.adminCommand('ping')\""
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +22,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          extensions: pdo, pdo_sqlite, pdo_mysql, mbstring, xml, bcmath, pcntl
+          extensions: pdo, pdo_sqlite, pdo_mysql, mbstring, xml, bcmath, pcntl, tokenizer, ctype, json
           coverage: none
 
       - name: Cache Composer
@@ -45,20 +35,11 @@ jobs:
       - name: Installer les dépendances
         run: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mongodb
 
-      - name: Copier .env de test
-        run: cp .env.example .env
-
-      - name: Générer APP_KEY
-        run: php artisan key:generate
+      - name: Préparer l'environnement de test
+        run: cp .env.testing .env
 
       - name: Exécuter PHPUnit
         run: php artisan test
-        env:
-          APP_ENV: testing
-          DB_CONNECTION: sqlite
-          DB_DATABASE: ":memory:"
-          MONGODB_HOST: 127.0.0.1
-          MONGODB_PORT: 27017
 
   # ────────────────────────────────────────────────────────────────────────────
   # Job 2 — atoum (tests unitaires purs)
@@ -75,7 +56,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          extensions: pdo, pdo_sqlite, mbstring, xml, bcmath, pcntl
+          extensions: pdo, pdo_sqlite, mbstring, xml, bcmath, pcntl, tokenizer, ctype, json
           coverage: none
 
       - name: Cache Composer
@@ -88,8 +69,8 @@ jobs:
       - name: Installer les dépendances
         run: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mongodb
 
-      - name: Copier .env
-        run: cp .env.example .env && php artisan key:generate
+      - name: Préparer l'environnement de test
+        run: cp .env.testing .env
 
       - name: Exécuter atoum
         run: |
@@ -98,10 +79,6 @@ jobs:
             -f tests/Atoum/FactureTest.php \
             -f tests/Atoum/AbonneTest.php \
             -ulr -mcn 1
-        env:
-          APP_ENV: testing
-          DB_CONNECTION: sqlite
-          DB_DATABASE: ":memory:"
 
   # ────────────────────────────────────────────────────────────────────────────
   # Job 3 — SimpleTest (tests unitaires)
@@ -118,7 +95,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          extensions: pdo, pdo_sqlite, mbstring, xml, bcmath
+          extensions: pdo, pdo_sqlite, mbstring, xml, bcmath, tokenizer, ctype, json
           coverage: none
 
       - name: Cache Composer
@@ -131,22 +108,14 @@ jobs:
       - name: Installer les dépendances
         run: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mongodb
 
-      - name: Copier .env
-        run: cp .env.example .env && php artisan key:generate
+      - name: Préparer l'environnement de test
+        run: cp .env.testing .env
 
       - name: Exécuter SimpleTest — Facture
         run: php tests/SimpleTest/FactureSimpleTest.php
-        env:
-          APP_ENV: testing
-          DB_CONNECTION: sqlite
-          DB_DATABASE: ":memory:"
 
       - name: Exécuter SimpleTest — Abonne
         run: php tests/SimpleTest/AbonneSimpleTest.php
-        env:
-          APP_ENV: testing
-          DB_CONNECTION: sqlite
-          DB_DATABASE: ":memory:"
 
   # ────────────────────────────────────────────────────────────────────────────
   # Job 4 — Lint (Laravel Pint)

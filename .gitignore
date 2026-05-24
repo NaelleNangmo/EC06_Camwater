@@ -3,9 +3,10 @@
 .env
 .env.backup
 .env.production
-# Garder .env.docker et .env.example en dépôt
+# Garder .env.docker, .env.example et .env.testing en dépôt
 !.env.docker
 !.env.example
+!.env.testing
 # Fichiers temporaires de test
 run_atoum.bat
 tests/Atoum/out.txt
