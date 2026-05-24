@@ -16,6 +16,7 @@ vendor
 .env
 .env.*
 !.env.example
+!.env.testing
 
 # Tests
 tests
