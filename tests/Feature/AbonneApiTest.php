@@ -22,6 +22,7 @@ class AbonneApiTest extends TestCase
     protected function authenticateUser(): string
     {
         $user = User::factory()->create();
+
         return $user->createToken('test-token')->plainTextToken;
     }
 
@@ -37,27 +38,27 @@ class AbonneApiTest extends TestCase
         $response = $this->getJson('/api/abonnes');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         '*' => [
-                             'id',
-                             'nom',
-                             'prenom',
-                             'ville',
-                             'quartier',
-                             'numero_compteur',
-                             'type_abonnement',
-                             'date_creation',
-                             'factures'
-                         ]
-                     ],
-                     'pagination',
-                     'message'
-                 ])
-                 ->assertJson([
-                     'success' => true
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'nom',
+                        'prenom',
+                        'ville',
+                        'quartier',
+                        'numero_compteur',
+                        'type_abonnement',
+                        'date_creation',
+                        'factures',
+                    ],
+                ],
+                'pagination',
+                'message',
+            ])
+            ->assertJson([
+                'success' => true,
+            ]);
 
         $this->assertCount(3, $response->json('data'));
     }
@@ -76,39 +77,39 @@ class AbonneApiTest extends TestCase
             'ville' => 'Yaoundé',
             'quartier' => 'Bastos',
             'numero_compteur' => 'CPT-YAO-001',
-            'type_abonnement' => 'Domestique'
+            'type_abonnement' => 'Domestique',
         ];
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/abonnes', $abonneData);
 
         $response->assertStatus(201)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'id',
-                         'nom',
-                         'prenom',
-                         'ville',
-                         'quartier',
-                         'numero_compteur',
-                         'type_abonnement'
-                     ],
-                     'message'
-                 ])
-                 ->assertJson([
-                     'success' => true,
-                     'data' => [
-                         'nom' => 'Kamga',
-                         'prenom' => 'Jean',
-                         'ville' => 'Yaoundé'
-                     ]
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'id',
+                    'nom',
+                    'prenom',
+                    'ville',
+                    'quartier',
+                    'numero_compteur',
+                    'type_abonnement',
+                ],
+                'message',
+            ])
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'nom' => 'Kamga',
+                    'prenom' => 'Jean',
+                    'ville' => 'Yaoundé',
+                ],
+            ]);
 
         $this->assertDatabaseHas('abonnes', [
             'nom' => 'Kamga',
-            'numero_compteur' => 'CPT-YAO-001'
+            'numero_compteur' => 'CPT-YAO-001',
         ]);
     }
 
@@ -121,7 +122,7 @@ class AbonneApiTest extends TestCase
         $token = $this->authenticateUser();
 
         Abonne::factory()->create([
-            'numero_compteur' => 'CPT-YAO-001'
+            'numero_compteur' => 'CPT-YAO-001',
         ]);
 
         $abonneData = [
@@ -130,15 +131,15 @@ class AbonneApiTest extends TestCase
             'ville' => 'Douala',
             'quartier' => 'Akwa',
             'numero_compteur' => 'CPT-YAO-001', // Déjà existant
-            'type_abonnement' => 'Domestique'
+            'type_abonnement' => 'Domestique',
         ];
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/abonnes', $abonneData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['numero_compteur']);
+            ->assertJsonValidationErrors(['numero_compteur']);
     }
 
     /**
@@ -155,17 +156,17 @@ class AbonneApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/abonnes', $abonneData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors([
-                     'prenom',
-                     'ville',
-                     'quartier',
-                     'numero_compteur',
-                     'type_abonnement'
-                 ]);
+            ->assertJsonValidationErrors([
+                'prenom',
+                'ville',
+                'quartier',
+                'numero_compteur',
+                'type_abonnement',
+            ]);
     }
 
     /**
@@ -182,15 +183,15 @@ class AbonneApiTest extends TestCase
             'ville' => 'Paris', // Ville non autorisée
             'quartier' => 'Bastos',
             'numero_compteur' => 'CPT-YAO-001',
-            'type_abonnement' => 'Domestique'
+            'type_abonnement' => 'Domestique',
         ];
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/abonnes', $abonneData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['ville']);
+            ->assertJsonValidationErrors(['ville']);
     }
 
     /**
@@ -205,30 +206,30 @@ class AbonneApiTest extends TestCase
         $response = $this->getJson("/api/abonnes/{$abonne->id}");
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'id',
-                         'nom',
-                         'prenom',
-                         'ville',
-                         'factures' => [
-                             '*' => [
-                                 'id',
-                                 'consommation',
-                                 'montant_total',
-                                 'statut'
-                             ]
-                         ]
-                     ],
-                     'message'
-                 ])
-                 ->assertJson([
-                     'success' => true,
-                     'data' => [
-                         'id' => $abonne->id
-                     ]
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'id',
+                    'nom',
+                    'prenom',
+                    'ville',
+                    'factures' => [
+                        '*' => [
+                            'id',
+                            'consommation',
+                            'montant_total',
+                            'statut',
+                        ],
+                    ],
+                ],
+                'message',
+            ])
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'id' => $abonne->id,
+                ],
+            ]);
 
         $this->assertCount(2, $response->json('data.factures'));
     }
@@ -242,9 +243,9 @@ class AbonneApiTest extends TestCase
         $response = $this->getJson('/api/abonnes/999');
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'success' => false
-                 ]);
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -257,32 +258,32 @@ class AbonneApiTest extends TestCase
 
         $abonne = Abonne::factory()->create([
             'quartier' => 'Bastos',
-            'ville' => 'Yaoundé'
+            'ville' => 'Yaoundé',
         ]);
 
         $updateData = [
             'quartier' => 'Mvan',
-            'ville' => 'Douala'
+            'ville' => 'Douala',
         ];
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->putJson("/api/abonnes/{$abonne->id}", $updateData);
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'data' => [
-                         'id' => $abonne->id,
-                         'quartier' => 'Mvan',
-                         'ville' => 'Douala'
-                     ]
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'id' => $abonne->id,
+                    'quartier' => 'Mvan',
+                    'ville' => 'Douala',
+                ],
+            ]);
 
         $this->assertDatabaseHas('abonnes', [
             'id' => $abonne->id,
             'quartier' => 'Mvan',
-            'ville' => 'Douala'
+            'ville' => 'Douala',
         ]);
     }
 
@@ -298,13 +299,13 @@ class AbonneApiTest extends TestCase
         $facture = Facture::factory()->create(['abonne_id' => $abonne->id]);
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->deleteJson("/api/abonnes/{$abonne->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true
-                 ]);
+            ->assertJson([
+                'success' => true,
+            ]);
 
         $this->assertDatabaseMissing('abonnes', ['id' => $abonne->id]);
         $this->assertDatabaseMissing('factures', ['id' => $facture->id]);
@@ -319,12 +320,12 @@ class AbonneApiTest extends TestCase
         $token = $this->authenticateUser();
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->deleteJson('/api/abonnes/999');
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'success' => false
-                 ]);
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 }

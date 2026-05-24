@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
 /**
  * Modèle représentant une réclamation.
  * Une réclamation est déposée par un abonné concernant une facture.
@@ -15,9 +14,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Reclamation extends Model
 {
     use HasFactory;
+
     /**
      * Le nom de la table associée au modèle.
-     *
      */
     protected $table = 'reclamations';
 
@@ -44,16 +43,13 @@ class Reclamation extends Model
 
     /**
      * Relation : Une réclamation appartient à une facture.
-     *
-     * @return BelongsTo
      */
     public function facture(): BelongsTo
     {
         return $this->belongsTo(Facture::class, 'facture_id');
     }
 
-
-        public function factures(): HasMany
+    public function factures(): HasMany
     {
         return $this->hasMany(Facture::class, 'id');
     }

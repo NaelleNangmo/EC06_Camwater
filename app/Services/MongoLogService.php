@@ -13,7 +13,7 @@ class MongoLogService
     public function logActivity(string $typeAction, int $operateurId, ?int $abonneId = null, array $details = []): void
     {
         // Vérifier si MongoDB est disponible
-        if (!extension_loaded('mongodb')) {
+        if (! extension_loaded('mongodb')) {
             // MongoDB n'est pas installé, on log dans Laravel
             \Log::info('MongoDB Log (extension non installée)', [
                 'type_action' => $typeAction,
@@ -21,6 +21,7 @@ class MongoLogService
                 'abonne_id' => $abonneId,
                 'details' => $details,
             ]);
+
             return;
         }
 
@@ -31,12 +32,12 @@ class MongoLogService
                     'type_action' => $typeAction,
                     'operateur_id' => $operateurId,
                     'abonne_id' => $abonneId,
-                    'timestamp' => new UTCDateTime(),
+                    'timestamp' => new UTCDateTime,
                     'details' => $details,
                 ]);
         } catch (\Exception $e) {
             // Log l'erreur sans interrompre l'application
-            \Log::error('Erreur lors de l\'enregistrement du log MongoDB: ' . $e->getMessage());
+            \Log::error('Erreur lors de l\'enregistrement du log MongoDB: '.$e->getMessage());
         }
     }
 
@@ -58,7 +59,8 @@ class MongoLogService
 
             return $logs;
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la récupération des logs MongoDB: ' . $e->getMessage());
+            \Log::error('Erreur lors de la récupération des logs MongoDB: '.$e->getMessage());
+
             return [];
         }
     }
@@ -78,7 +80,8 @@ class MongoLogService
 
             return $logs;
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la récupération des logs de l\'abonné: ' . $e->getMessage());
+            \Log::error('Erreur lors de la récupération des logs de l\'abonné: '.$e->getMessage());
+
             return [];
         }
     }
@@ -97,19 +100,20 @@ class MongoLogService
                             '$group' => [
                                 '_id' => '$type_action',
                                 'total' => ['$sum' => 1],
-                                'derniere_action' => ['$max' => '$timestamp']
-                            ]
+                                'derniere_action' => ['$max' => '$timestamp'],
+                            ],
                         ],
                         [
-                            '$sort' => ['total' => -1]
-                        ]
+                            '$sort' => ['total' => -1],
+                        ],
                     ]);
                 })
                 ->toArray();
 
             return $stats;
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la récupération des statistiques: ' . $e->getMessage());
+            \Log::error('Erreur lors de la récupération des statistiques: '.$e->getMessage());
+
             return [];
         }
     }

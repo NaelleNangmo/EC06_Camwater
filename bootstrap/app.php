@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
-        
+
         // Ajouter le middleware de permissions
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,

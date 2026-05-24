@@ -21,24 +21,18 @@ class CacheService
 
     /**
      * Récupère les données depuis le cache ou exécute le callback.
-     * 
-     * @param string $key
-     * @param callable $callback
-     * @param int|null $duration
+     *
      * @return mixed
      */
     public function remember(string $key, callable $callback, ?int $duration = null)
     {
         $duration = $duration ?? $this->cacheDuration;
-        
+
         return Cache::remember($key, now()->addMinutes($duration), $callback);
     }
 
     /**
      * Supprime une clé du cache.
-     * 
-     * @param string $key
-     * @return bool
      */
     public function forget(string $key): bool
     {
@@ -47,16 +41,13 @@ class CacheService
 
     /**
      * Supprime toutes les clés correspondant à un pattern.
-     * 
-     * @param string $pattern
-     * @return void
      */
     public function forgetByPattern(string $pattern): void
     {
         // Pour les patterns comme 'abonnes_*', on supprime directement les clés connues
         // Dans un environnement de production, utiliser Redis avec SCAN
         $prefix = str_replace('*', '', $pattern);
-        
+
         // Supprimer les clés de pagination courantes (pages 1 à 10)
         for ($i = 1; $i <= 10; $i++) {
             Cache::forget("{$prefix}page_{$i}");
@@ -65,8 +56,6 @@ class CacheService
 
     /**
      * Vide tout le cache.
-     * 
-     * @return bool
      */
     public function flush(): bool
     {
@@ -75,15 +64,12 @@ class CacheService
 
     /**
      * Enregistre une clé dans la liste des clés de cache.
-     * 
-     * @param string $key
-     * @return void
      */
     protected function registerKey(string $key): void
     {
         $keys = Cache::get('cache_keys', []);
-        
-        if (!in_array($key, $keys)) {
+
+        if (! in_array($key, $keys)) {
             $keys[] = $key;
             Cache::forever('cache_keys', $keys);
         }

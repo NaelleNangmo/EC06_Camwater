@@ -23,7 +23,7 @@ class ReclamationFactory extends Factory
     public function definition(): array
     {
         $statut = $this->faker->randomElement(['En attente', 'En cours', 'Resolue']);
-        
+
         return [
             'facture_id' => Facture::factory(),
             'statut' => $statut,

@@ -1,17 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Reclamation;
-use App\Services\MongoLogService;
-use App\Services\CacheService;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\Rule;
 
+use App\Models\Reclamation;
+use App\Services\CacheService;
+use App\Services\MongoLogService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ReclamationController extends Controller
 {
     protected $mongoLog;
+
     protected $cache;
 
     public function __construct(MongoLogService $mongoLog, CacheService $cache)
@@ -19,10 +20,9 @@ class ReclamationController extends Controller
         $this->mongoLog = $mongoLog;
         $this->cache = $cache;
     }
+
     /**
      * Affiche la liste de tous les reclamations avec pagination.
-     *
-     * @return JsonResponse
      */
     public function index(): JsonResponse
     {
@@ -45,15 +45,12 @@ class ReclamationController extends Controller
                 'from' => $reclamation->firstItem(),
                 'to' => $reclamation->lastItem(),
             ],
-            'message' => 'Liste des reclamations récupérée avec succès.'
+            'message' => 'Liste des reclamations récupérée avec succès.',
         ], 200);
     }
 
     /**
      * Crée un nouvel reclamation dans la base de données.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -81,58 +78,51 @@ class ReclamationController extends Controller
                 'ville' => $reclamation->ville,
                 'quartier' => $reclamation->quartier,
                 'numero_compteur' => $reclamation->numero_compteur,
-                'type_reclamationment' => $reclamation->type_reclamationment
+                'type_reclamationment' => $reclamation->type_reclamationment,
             ]
         );
 
         return response()->json([
             'success' => true,
             'data' => $reclamation,
-            'message' => 'reclamation créé avec succès.'
+            'message' => 'reclamation créé avec succès.',
         ], 201);
     }
 
     /**
      * Affiche les détails d'un reclamation spécifique.
-     *
-     * @param string $id
-     * @return JsonResponse
      */
     public function show(string $id): JsonResponse
     {
         // Récupérer l'reclamation avec ses factures
         $reclamation = Reclamation::with('factures')->find($id);
 
-        if (!$reclamation) {
+        if (! $reclamation) {
             return response()->json([
                 'success' => false,
-                'message' => 'reclamation non trouvé.'
+                'message' => 'reclamation non trouvé.',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
             'data' => $reclamation,
-            'message' => 'Détails de la reclamation récupérés avec succès.'
+            'message' => 'Détails de la reclamation récupérés avec succès.',
         ], 200);
     }
 
     /**
      * Met à jour les informations d'un reclamation.
-     *
-     * @param Request $request
-     * @param string $id
-     * @return JsonResponse
      */
     public function update(Request $request, string $id): JsonResponse
     {
         // Récupérer la reclamation
         $reclamation = Reclamation::find($id);
 
-        if (!$reclamation) {
+        if (! $reclamation) {
             return response()->json([
                 'success' => false,
-                'message' => 'reclamation non trouvé.'
+                'message' => 'reclamation non trouvé.',
             ], 404);
         }
 
@@ -160,35 +150,31 @@ class ReclamationController extends Controller
             [
                 'champs_modifies' => array_keys($validated),
                 'anciennes_valeurs' => $anciennesValeurs,
-                'nouvelles_valeurs' => $validated
+                'nouvelles_valeurs' => $validated,
             ]
         );
 
         return response()->json([
             'success' => true,
             'data' => $reclamation,
-            'message' => 'reclamation mis à jour avec succès.'
+            'message' => 'reclamation mis à jour avec succès.',
         ], 200);
     }
 
     /**
      * Supprime un reclamation de la base de données.
-     *
-     * @param string $id
-     * @return JsonResponse
      */
     public function destroy(string $id): JsonResponse
     {
         // Récupérer l'reclamation
         $reclamation = Reclamation::find($id);
 
-        if (!$reclamation) {
+        if (! $reclamation) {
             return response()->json([
                 'success' => false,
-                'message' => 'reclamation non trouvé.'
+                'message' => 'reclamation non trouvé.',
             ], 404);
         }
-
 
         // Logger l'action avant suppression
         $this->mongoLog->logActivity(
@@ -196,9 +182,9 @@ class ReclamationController extends Controller
             1, // l'ID de l'opérateur authentifié
             $reclamation->id,
             [
-                'nom_complet' => $reclamation->nom . ' ' . $reclamation->prenom,
+                'nom_complet' => $reclamation->nom.' '.$reclamation->prenom,
                 'numero_compteur' => $reclamation->numero_compteur,
-                'raison' => 'Suppression via API'
+                'raison' => 'Suppression via API',
             ]
         );
 
@@ -210,7 +196,7 @@ class ReclamationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'reclamation supprimé avec succès.'
+            'message' => 'reclamation supprimé avec succès.',
         ], 200);
     }
 }
