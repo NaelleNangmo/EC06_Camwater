@@ -1,0 +1,89 @@
+services:
+
+  # ── Application Laravel (dev) ──────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      target: production
+    container_name: camwater_app_dev
+    restart: unless-stopped
+    environment:
+      APP_ENV: local
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-camwater_dev}
+      DB_USERNAME: ${DB_USERNAME:-camwater}
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      MONGODB_HOST: mongo
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: camwater_logs_dev
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      L5_SWAGGER_GENERATE_ALWAYS: "true"
+      L5_SWAGGER_CONST_HOST: http://localhost:8000
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+    ports:
+      - "8000:80"
+    depends_on:
+      db:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - camwater_network
+
+  # ── MySQL (dev) ────────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: camwater_db_dev
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-camwater_dev}
+      MYSQL_USER: ${DB_USERNAME:-camwater}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - db_dev_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - camwater_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootsecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── MongoDB (dev) ──────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7.0
+    container_name: camwater_mongo_dev
+    restart: unless-stopped
+    volumes:
+      - mongo_dev_data:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - camwater_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  db_dev_data:
+  mongo_dev_data:
+
+networks:
+  camwater_network:
+    driver: bridge

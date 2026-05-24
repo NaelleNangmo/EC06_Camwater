@@ -1,0 +1,100 @@
+services:
+
+  # ── Application Laravel ────────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      target: production
+    container_name: camwater_app
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:-http://localhost}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-camwater}
+      DB_USERNAME: ${DB_USERNAME:-camwater}
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      MONGODB_HOST: mongo
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: ${MONGODB_DATABASE:-camwater_logs}
+      CACHE_STORE: database
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+    volumes:
+      - app_storage:/var/www/html/storage
+    ports:
+      - "${APP_PORT:-8000}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - camwater_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ── MySQL ──────────────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: camwater_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-camwater}
+      MYSQL_USER: ${DB_USERNAME:-camwater}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "${DB_PORT_EXPOSE:-3306}:3306"
+    networks:
+      - camwater_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootsecret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── MongoDB ────────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7.0
+    container_name: camwater_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-camwater_logs}
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "${MONGO_PORT_EXPOSE:-27017}:27017"
+    networks:
+      - camwater_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+# ── Volumes ────────────────────────────────────────────────────────────────
+volumes:
+  db_data:
+    driver: local
+  mongo_data:
+    driver: local
+  app_storage:
+    driver: local
+
+# ── Réseau ─────────────────────────────────────────────────────────────────
+networks:
+  camwater_network:
+    driver: bridge

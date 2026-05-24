@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Dépendances locales
+node_modules
+vendor
+
+# Environnement
+.env
+.env.*
+!.env.example
+
+# Tests
+tests
+phpunit.xml
+.phpunit.result.cache
+run_atoum.bat
+.atoum.php
+
+# Docs & CI
+docs
+.github
+README.md
+
+# Logs & cache
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*.php
+
+# Build assets
+public/hot
+public/storage

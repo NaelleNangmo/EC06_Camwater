@@ -1,0 +1,204 @@
+name: CI — Tests & Qualité
+
+on:
+  push:
+    branches: [develop, "feature/**", "fix/**", "bugfix/**", "hotfix/**"]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 1 — PHPUnit (Feature + Unit)
+  # ────────────────────────────────────────────────────────────────────────────
+  phpunit:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:7.0
+        ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --eval \"db.adminCommand('ping')\""
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo, pdo_sqlite, pdo_mysql, mbstring, xml, bcmath, pcntl
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mongodb
+
+      - name: Copier .env de test
+        run: cp .env.example .env
+
+      - name: Générer APP_KEY
+        run: php artisan key:generate
+
+      - name: Exécuter PHPUnit
+        run: php artisan test --parallel
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          MONGODB_HOST: 127.0.0.1
+          MONGODB_PORT: 27017
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 2 — atoum (tests unitaires purs)
+  # ────────────────────────────────────────────────────────────────────────────
+  atoum:
+    name: atoum Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo, pdo_sqlite, mbstring, xml, bcmath, pcntl
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mongodb
+
+      - name: Copier .env
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: Exécuter atoum
+        run: |
+          php vendor/atoum/atoum/bin/atoum \
+            -bf tests/Atoum/bootstrap.php \
+            -f tests/Atoum/FactureTest.php \
+            -f tests/Atoum/AbonneTest.php \
+            -ulr -mcn 1
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 3 — SimpleTest (tests unitaires)
+  # ────────────────────────────────────────────────────────────────────────────
+  simpletest:
+    name: SimpleTest Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo, pdo_sqlite, mbstring, xml, bcmath
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mongodb
+
+      - name: Copier .env
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: Exécuter SimpleTest — Facture
+        run: php tests/SimpleTest/FactureSimpleTest.php
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+
+      - name: Exécuter SimpleTest — Abonne
+        run: php tests/SimpleTest/AbonneSimpleTest.php
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 4 — Lint (Laravel Pint)
+  # ────────────────────────────────────────────────────────────────────────────
+  lint:
+    name: Code Style (Pint)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mongodb
+
+      - name: Vérifier le style de code
+        run: ./vendor/bin/pint --test
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 5 — Build Docker (vérification uniquement sur CI)
+  # ────────────────────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    needs: [phpunit, atoum, simpletest, lint]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (sans push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: production
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: camwaterapp:ci-${{ github.sha }}
