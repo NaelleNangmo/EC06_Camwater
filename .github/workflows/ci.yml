@@ -1,0 +1,35 @@
+﻿name: CI  Kaba-Delivery
+
+on:
+  push:
+    branches: [develop, "feature/**", "fix/**", "ci/**"]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  tests:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo, pdo_sqlite, mbstring, xml, bcmath
+          coverage: none
+      - name: Installer les dependances
+        run: composer install --no-interaction --prefer-dist
+      - name: Preparer environnement
+        run: cp .env.example .env && php artisan key:generate
+      - name: Executer les tests
+        run: php artisan test
+
+  lint:
+    name: Code Style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.2" }
+      - run: composer install --no-interaction --prefer-dist
+      - run: ./vendor/bin/pint --test
