@@ -148,12 +148,39 @@ jobs:
         run: ./vendor/bin/pint --test
 
   # ────────────────────────────────────────────────────────────────────────────
-  # Job 5 — Build Docker (vérification uniquement sur CI)
+  # Job 5 — SonarCloud (analyse qualité)
+  # ────────────────────────────────────────────────────────────────────────────
+  sonar:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: [phpunit]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=NaelleNangmo_kaba-delivery-backend
+            -Dsonar.organization=naellenangmo
+            -Dsonar.sources=.
+            -Dsonar.tests=tests
+            -Dsonar.sourceEncoding=UTF-8
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 6 — Build Docker (vérification uniquement sur CI)
   # ────────────────────────────────────────────────────────────────────────────
   docker-build:
     name: Docker Build Check
     runs-on: ubuntu-latest
-    needs: [phpunit, atoum, simpletest, lint]
+    needs: [phpunit, atoum, simpletest, lint, sonar]
 
     steps:
       - name: Checkout
