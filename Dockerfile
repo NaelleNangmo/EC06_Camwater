@@ -47,7 +47,7 @@ RUN composer dump-autoload --optimize --ignore-platform-req=ext-mongodb
 FROM php:8.2-fpm-alpine AS production
 
 LABEL maintainer="CamwaterApp Team"
-LABEL org.opencontainers.image.source="https://github.com/NaelleNangmo/CamwaterApp"
+LABEL org.opencontainers.image.source="https://github.com/NaelleNangmo/EC06_Camwater"
 
 # Extensions système
 RUN apk add --no-cache \
