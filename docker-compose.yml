@@ -1,0 +1,32 @@
+﻿services:
+  app:
+    build: { context: ., target: production }
+    container_name: kaba_app
+    ports: ["8000:80"]
+    environment:
+      APP_ENV: production
+      DB_CONNECTION: mysql
+      DB_HOST: db
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [kaba_network]
+
+  db:
+    image: mysql:8.0
+    container_name: kaba_db
+    environment:
+      MYSQL_DATABASE: kaba_delivery
+      MYSQL_USER: kaba
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes: [db_data:/var/lib/mysql]
+    networks: [kaba_network]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+volumes:
+  db_data:
+networks:
+  kaba_network:
