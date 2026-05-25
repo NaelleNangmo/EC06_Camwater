@@ -14,7 +14,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/camwaterapp
+  # Correction ici ⬇️ : On force le passage en minuscules pour Docker
+  IMAGE_NAME: ${{ lowercase(github.repository_owner) }}/camwaterapp
 
 jobs:
   # ────────────────────────────────────────────────────────────────────────────

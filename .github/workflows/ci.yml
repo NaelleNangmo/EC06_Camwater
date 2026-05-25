@@ -2,7 +2,7 @@ name: CI — Tests & Qualité
 
 on:
   push:
-    branches: [develop, "feature/**", "fix/**", "bugfix/**", "hotfix/**"]
+    branches: [develop, "feature/**", "fix/**", "bugfix/**", "hotfix/**", main]
   pull_request:
     branches: [develop, main]
 
